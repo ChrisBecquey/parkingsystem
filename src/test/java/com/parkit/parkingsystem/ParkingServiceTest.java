@@ -58,4 +58,13 @@ public class ParkingServiceTest {
         verify(parkingSpotDAO, Mockito.times(1)).updateParking(any(ParkingSpot.class));
     }
 
+/*
+    @Test
+    void shouldSendAMessage_whenVehicleHaveAlreadyParkIn() {
+        // checker si le numéro du véhicule est déjà apparu dans la BDD
+        // Si c'est le cas => doit renvoyer le message "Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount." => process normal + 5% de reduction
+        // Sinon process normal
+    }
+*/
+
 }
