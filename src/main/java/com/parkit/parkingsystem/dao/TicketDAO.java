@@ -31,6 +31,7 @@ public class TicketDAO {
             ps.setDouble(3, ticket.getPrice());
             ps.setTimestamp(4, new Timestamp(ticket.getInTime().getTime()));
             ps.setTimestamp(5, (ticket.getOutTime() == null)?null: (new Timestamp(ticket.getOutTime().getTime())) );
+            setIfRecurentUser(ticket);
             return ps.execute();
         }catch (Exception ex){
             logger.error("Error fetching next available slot",ex);
@@ -58,6 +59,7 @@ public class TicketDAO {
                 ticket.setPrice(rs.getDouble(3));
                 ticket.setInTime(rs.getTimestamp(4));
                 ticket.setOutTime(rs.getTimestamp(5));
+                setIfRecurentUser(ticket);
             }
             dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closePreparedStatement(ps);
@@ -67,6 +69,10 @@ public class TicketDAO {
             dataBaseConfig.closeConnection(con);
             return ticket;
         }
+    }
+
+    public boolean getAlreadyHere(String vehicleRegNumber) {
+        return false;
     }
 
     public boolean updateTicket(Ticket ticket) {
@@ -86,4 +92,21 @@ public class TicketDAO {
         }
         return false;
     }
+
+    private void setIfRecurentUser(Ticket ticket) {
+        Connection con = null;
+        try {
+            con = dataBaseConfig.getConnection();
+            PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET_WHEN_RECURRENT_CLIENT);
+            ps.setString(1, ticket.getVehicleRegNumber());
+            ps.execute();
+            ticket.setRecuringMember(ps.getResultSet().next());
+        }catch (Exception ex){
+            logger.error("Error looking for recurrences",ex);
+        }finally {
+            dataBaseConfig.closeConnection(con);
+        }
+    }
 }
+
+// PreparedStatement ps = con.prepareStatement("Select * from ticket where VEHICLE_REG_NUMBER=\""+ticket.getVehicleRegNumber()+"\" and OUT_TIME IS NOT NULL");
