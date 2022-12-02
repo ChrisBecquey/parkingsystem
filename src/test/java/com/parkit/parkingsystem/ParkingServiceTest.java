@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ParkingServiceTest {
     @InjectMocks
-    private static ParkingService parkingService;
+    private  ParkingService parkingService;
 
     @Mock
     private  InputReaderUtil inputReaderUtil;

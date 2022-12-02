@@ -19,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -37,7 +39,6 @@ public class ParkingDataBaseIT {
     private static TicketDAO ticketDAO;
     private static DataBasePrepareService dataBasePrepareService;
 
-    Clock serverClock = Clock.fixed(Instant.parse("2022-10-14T00:15:00.0Z"), ZoneId.of("Europe/Paris"));
     private static final Logger logger = LogManager.getLogger("ParkingDataBaseIT");
     private static final String VEHICULE_REG_NUMBER = "ABCDEF";
 
@@ -66,7 +67,7 @@ public class ParkingDataBaseIT {
     }
 
     @Test
-    public void testParkingACar(){
+    public void testParkingACar() throws SQLException {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle();
         //TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
@@ -77,7 +78,7 @@ public class ParkingDataBaseIT {
     }
 
     @Test
-    public void testParkingLotExit() {
+    public void testParkingLotExit() throws SQLException {
         testParkingACar();
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle();
@@ -94,21 +95,25 @@ public class ParkingDataBaseIT {
         Connection con = null;
         try {
             con = dataBaseTestConfig.getConnection();
-            ResultSet ticketResult = con.prepareStatement(DBConstants.GET_TICKET_BY_REG_NUMBER + VEHICULE_REG_NUMBER + "\"").executeQuery();
+            PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET_BY_REG_NUMBER + VEHICULE_REG_NUMBER + "\"");
+            try {
+                ResultSet ticketResult = ps.executeQuery();
+                boolean isPriceRight = false;
 
-            boolean isPriceRight = false;
+                if (ticketResult.next()) {
+                    isPriceRight = ticketResult.getDouble(4) == ticket.getPrice();
+                }
 
-            if (ticketResult.next()) {
-                isPriceRight = ticketResult.getDouble(4) == ticket.getPrice();
+                assertTrue(isPriceRight);
+            } finally {
+                ps.close();
             }
-
-            assertTrue(isPriceRight);
-
         } catch (Exception ex) {
             logger.error("Error fetching next available slot", ex);
             assertTrue(false);
         } finally {
             dataBaseTestConfig.closeConnection(con);
+
         }
     }
 
