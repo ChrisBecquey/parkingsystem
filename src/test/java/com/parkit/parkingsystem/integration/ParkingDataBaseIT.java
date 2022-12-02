@@ -121,17 +121,3 @@ public class ParkingDataBaseIT {
         assertTrue(ticketDAO.getTicket(VEHICULE_REG_NUMBER).isRecuringMember());
     }
 }
-
-   /*@Test
-    public void testParkingLotExit() throws InterruptedException {
-        testParkingACar();
-        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
-        Thread.sleep(1000);
-        parkingService.processExitingVehicle();
-        Ticket abcdef = ticketDAO.getTicket("ABCDEF");
-        assertNotNull(abcdef);
-        assertNotNull(abcdef.getOutTime());
-        assertTrue(abcdef.getOutTime().after(abcdef.getInTime()));
-        assertEquals( 0, abcdef.getPrice());
-    }
-*/

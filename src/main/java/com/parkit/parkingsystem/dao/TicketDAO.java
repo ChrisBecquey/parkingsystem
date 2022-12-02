@@ -31,7 +31,6 @@ public class TicketDAO {
             ps.setDouble(3, ticket.getPrice());
             ps.setTimestamp(4, new Timestamp(ticket.getInTime().getTime()));
             ps.setTimestamp(5, (ticket.getOutTime() == null)?null: (new Timestamp(ticket.getOutTime().getTime())) );
-            setIfRecurentUser(ticket);
             return ps.execute();
         }catch (Exception ex){
             logger.error("Error fetching next available slot",ex);
@@ -44,6 +43,7 @@ public class TicketDAO {
     public Ticket getTicket(String vehicleRegNumber) {
         Connection con = null;
         Ticket ticket = null;
+        int recuringMember = getTicketNumberOccurrence(vehicleRegNumber);
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET);
@@ -59,7 +59,11 @@ public class TicketDAO {
                 ticket.setPrice(rs.getDouble(3));
                 ticket.setInTime(rs.getTimestamp(4));
                 ticket.setOutTime(rs.getTimestamp(5));
-                setIfRecurentUser(ticket);
+                if ((recuringMember > 0)) {
+                    ticket.setRecuringMember(true);
+                } else {
+                    ticket.setRecuringMember(false);
+                }
             }
             dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closePreparedStatement(ps);
@@ -93,20 +97,27 @@ public class TicketDAO {
         return false;
     }
 
-    private void setIfRecurentUser(Ticket ticket) {
+    public int getTicketNumberOccurrence(String vehicleRegNumber){
         Connection con = null;
+        int result = 0;
         try {
             con = dataBaseConfig.getConnection();
-            PreparedStatement ps = con.prepareStatement(DBConstants.GET_TICKET_WHEN_RECURRENT_CLIENT);
-            ps.setString(1, ticket.getVehicleRegNumber());
-            ps.execute();
-            ticket.setRecuringMember(ps.getResultSet().next());
+            PreparedStatement ps = con.prepareStatement(DBConstants.COUNT_TICKET_OCCURRENCE);
+            //ID, PARKING_NUMBER, VEHICLE_REG_NUMBER, PRICE, IN_TIME, OUT_TIME
+            ps.setString(1, vehicleRegNumber);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            result = rs.getInt("count(*)");
+            dataBaseConfig.closeResultSet(rs);
+            dataBaseConfig.closePreparedStatement(ps);
+            return result;
+
         }catch (Exception ex){
-            logger.error("Error looking for recurrences",ex);
+            logger.error("Error fetching next available slot",ex);
         }finally {
             dataBaseConfig.closeConnection(con);
+            return result;
         }
     }
 }
 
-// PreparedStatement ps = con.prepareStatement("Select * from ticket where VEHICLE_REG_NUMBER=\""+ticket.getVehicleRegNumber()+"\" and OUT_TIME IS NOT NULL");

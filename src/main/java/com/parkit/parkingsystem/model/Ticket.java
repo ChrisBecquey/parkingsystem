@@ -65,6 +65,6 @@ public class Ticket {
     }
 
     public boolean isRecuringMember() {
-        return this.recuringMember;
+        return recuringMember;
     }
 }

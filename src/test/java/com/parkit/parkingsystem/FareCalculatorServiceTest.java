@@ -7,6 +7,7 @@ import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.FareCalculatorService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,18 +111,34 @@ public class FareCalculatorServiceTest {
         assertEquals((0.75 * Fare.CAR_RATE_PER_HOUR), ticket.getPrice());
     }
 
-    @Test
-    public void shouldBeFreeForFirst30Minutes() {
-        Date inTime = new Date();
-        inTime.setTime(System.currentTimeMillis() - (24 * 60 * 1000));
-        Date outTime = new Date();
-        ParkingSpot parkingSpot = (new ParkingSpot(1, ParkingType.CAR, false));
+    @Nested
+    class shouldBeFreeForFirst30Minutes {
+        @Test
+        public void shouldBeFreeForFirst30Minutes() {
+            Date inTime = new Date();
+            inTime.setTime(System.currentTimeMillis() - (24 * 60 * 1000));
+            Date outTime = new Date();
+            ParkingSpot parkingSpot = (new ParkingSpot(1, ParkingType.CAR, false));
 
-        ticket.setInTime(inTime);
-        ticket.setOutTime(outTime);
-        ticket.setParkingSpot(parkingSpot);
-        fareCalculatorService.calculateFare(ticket);
-        assertEquals((0), ticket.getPrice());
+            ticket.setInTime(inTime);
+            ticket.setOutTime(outTime);
+            ticket.setParkingSpot(parkingSpot);
+            fareCalculatorService.calculateFare(ticket);
+            assertEquals((0), ticket.getPrice());
+        }
+        @Test
+         void shouldPayAfter30Minutes() {
+            Date inTime = new Date();
+            inTime.setTime(System.currentTimeMillis() - (45 * 60 * 1000));
+            Date outTime = new Date();
+            ParkingSpot parkingSpot = (new ParkingSpot(1, ParkingType.CAR, false));
+
+            ticket.setInTime(inTime);
+            ticket.setOutTime(outTime);
+            ticket.setParkingSpot(parkingSpot);
+            fareCalculatorService.calculateFare(ticket);
+            assertEquals((1.125), ticket.getPrice());
+        }
 
     }
 
@@ -140,7 +157,7 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareCare_whenRecuringMenber() {
+    public void shouldHaveADiscount_whenIAmARecurringUser() {
         Date inTime = new Date();
         inTime.setTime(System.currentTimeMillis() - (45 * 60 * 1000));//45 minutes parking time should give 3/4th parking fare
         Date outTime = new Date();
