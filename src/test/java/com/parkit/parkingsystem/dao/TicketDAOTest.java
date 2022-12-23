@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TicketDAOTest {
@@ -33,6 +34,9 @@ class TicketDAOTest {
     private PreparedStatement preparedStatement;
     @Mock
     private ResultSet resultSet;
+  /*  @Mock
+    private static TicketDAO ticketDAOOccurence;*/
+    @Spy
     @InjectMocks
     private static TicketDAO ticketDAO;
 
@@ -59,13 +63,14 @@ class TicketDAOTest {
         ticket.setRecuringMember(false);
         ticket.setOutTime(outTime);
 
-        assertFalse(ticketDAO.saveTicket(ticket));
+        ticketDAO.saveTicket(ticket);
     }
 
     @Test
     void getTicket() throws SQLException, ClassNotFoundException, IOException {
         when(dataBaseConfig.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(DBConstants.GET_TICKET)).thenReturn(preparedStatement);
+        doReturn(0).when(ticketDAO).getTicketNumberOccurrence(anyString());
 
         ResultSet rs = resultSet;
         when(rs.next()).thenReturn(true).thenReturn(false);

@@ -13,17 +13,20 @@ public class FareCalculatorService {
         long inHour = ticket.getInTime().getTime();  // renvoie uniquement l'heure !
         long outHour = ticket.getOutTime().getTime();
 
-        //TODO: Some tests are failing here. Need to check if this logic is correct
+        // calcul de la durée en heure
         float duration = ((float) (outHour - inHour) / (1000 * 60 * 60));
 
         switch (ticket.getParkingSpot().getParkingType()) {
             case CAR: {
                 if (duration > 0.50 && ticket.isRecuringMember()) {
                     ticket.setPrice(0.95 * (duration * Fare.CAR_RATE_PER_HOUR));
+                    // cas ou la durée est supérieur à 30 min et client récurrent
                 } else if (duration > 0.50 && !ticket.isRecuringMember()) {
                     ticket.setPrice(duration * Fare.CAR_RATE_PER_HOUR);
+                    //cas où la durée est supérieur à 30 min et nouveau client
                 } else {
                     ticket.setPrice(0);
+                    //cas où la durée est inférieur à 30 min
                 }
                 break;
             }

@@ -8,6 +8,7 @@ import com.parkit.parkingsystem.model.Ticket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class TicketDAO {
@@ -16,7 +17,7 @@ public class TicketDAO {
 
     public DataBaseConfig dataBaseConfig = new DataBaseConfig();
 
-    public boolean saveTicket(Ticket ticket) throws SQLException {
+    public void saveTicket(Ticket ticket) throws SQLException, IOException, ClassNotFoundException {
         Connection con = null;
         try {
             con = dataBaseConfig.getConnection();
@@ -28,16 +29,16 @@ public class TicketDAO {
                 ps.setDouble(3, ticket.getPrice());
                 ps.setTimestamp(4, new Timestamp(ticket.getInTime().getTime()));
                 ps.setTimestamp(5, (ticket.getOutTime() == null) ? null : (new Timestamp(ticket.getOutTime().getTime())));
-                return ps.execute();
+                ps.execute();
             }
             finally {
                 ps.close();
             }
-        }catch (Exception ex){
+        }catch (SQLException | ClassNotFoundException | IOException ex){
             logger.error("Error fetching next available slot",ex);
+            throw ex;
         }finally {
             dataBaseConfig.closeConnection(con);
-            return false;
         }
     }
 

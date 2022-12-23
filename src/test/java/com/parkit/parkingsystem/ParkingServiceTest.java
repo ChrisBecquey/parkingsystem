@@ -79,7 +79,7 @@ public class ParkingServiceTest {
         }
 
         @Test
-        void shouldNotProcessIncomingVehicle_whenParkingSpotIdIsZero() throws Exception{
+        void shouldNotProcessIncomingVehicle_whenParkingSpotIdIsZero() throws Exception {
             when(parkingSpotDAO.getNextAvailableSlot(any())).thenReturn(0);
             when(inputReaderUtil.readSelection()).thenReturn(1);
 

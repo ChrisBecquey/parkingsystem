@@ -70,7 +70,6 @@ public class ParkingDataBaseIT {
     public void testParkingACar() throws SQLException {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle();
-        //TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
         Ticket carOne = ticketDAO.getTicket(VEHICULE_REG_NUMBER);
 
         assertNotNull(carOne);
@@ -89,7 +88,6 @@ public class ParkingDataBaseIT {
         ticket.setInTime(inTime);
 
         parkingService.processExitingVehicle();
-        //TODO: check that the fare generated and out time are populated correctly in the database
 
 
         Connection con = null;
@@ -121,6 +119,7 @@ public class ParkingDataBaseIT {
     public void discountForRecurringUsers() throws Exception{
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle(); // first time in the parking
+        Thread.sleep(3000); // date de sortie après date d'entrée
         parkingService.processExitingVehicle(); // exit for first time
         parkingService.processIncomingVehicle(); // coming back
         assertTrue(ticketDAO.getTicket(VEHICULE_REG_NUMBER).isRecuringMember());

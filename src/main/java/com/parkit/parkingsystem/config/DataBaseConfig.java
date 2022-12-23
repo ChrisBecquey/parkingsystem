@@ -18,8 +18,14 @@ public class DataBaseConfig {
         Class.forName("com.mysql.cj.jdbc.Driver");
         Properties properties = new Properties();
         String Path = new File("").getAbsolutePath();
-        properties.load(new FileInputStream(new File(Path + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "resources" + File.separatorChar + "credentials.properties" )));
-
+        FileInputStream inStream = new FileInputStream(new File(Path + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "resources" + File.separatorChar + "credentials.properties"));
+        try {
+            properties.load(inStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            inStream.close();
+        }
         String url = properties.getProperty("url");
         String user = properties.getProperty("username");
         String pass = properties.getProperty("password");

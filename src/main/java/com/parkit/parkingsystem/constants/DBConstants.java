@@ -11,6 +11,4 @@ public class DBConstants {
     public static final String GET_TICKET_BY_REG_NUMBER = "select * from ticket where VEHICLE_REG_NUMBER = \"";
     public static final String COUNT_TICKET_OCCURRENCE = "SELECT COUNT(*) FROM ticket t where t.VEHICLE_REG_NUMBER=? and t.OUT_TIME IS NOT NULL";
 
-    // public static final String GET_REG = "select  t.ID from ticket t where t.VEHICLE_REG_NUMBER=? limit 1";
-
 }
